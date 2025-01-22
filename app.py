@@ -86,6 +86,32 @@ HTML = '''
             margin: 0; /* Remove default margin */
             font-weight: 500; /* Medium font weight */
         }
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            cursor: pointer;
+        }
+
+        .popup-image {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            pointer-events: none;
+        }
+
+        .popup-image:hover {
+            pointer-events: auto;
+        }
     </style>
 </head>
 <body>
@@ -116,6 +142,24 @@ HTML = '''
 
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function openImagePopup(src) {
+            const popup = document.getElementById('imagePopup');
+            const popupImg = popup.querySelector('.popup-image');
+            popupImg.src = src;
+            popup.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeImagePopup() {
+            const popup = document.getElementById('imagePopup');
+            popup.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    </script>
+    <div id="imagePopup" class="popup-overlay" onclick="closeImagePopup()">
+    <img class="popup-image" onclick="event.stopPropagation()">
+</div>
 </body>
 </html>
 '''
@@ -196,9 +240,13 @@ def handle_upload():
             filename = os.path.basename(path)
             carousel_items += f'''
             <div class="carousel-item {'active' if i == 0 else ''}">
-                <img src="/uploads/{filename}" class="d-block w-100" alt="Найдено">
-                <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded">
-                    <p>Совпадение #{i+1}</p>
+                <img src="/uploads/{filename}" 
+                    class="d-block w-100" 
+                    alt="Найдено" 
+                    onclick="openImagePopup(this.src)"
+                    style="cursor: pointer">
+                    <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded">
+                    <p>#{i+1}</p>
                 </div>
             </div>
             '''
